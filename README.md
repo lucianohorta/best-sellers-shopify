@@ -6,6 +6,5 @@
 ## Also available on VERCEL:
 https://best-sellers-shopify.vercel.app/
 
-
-![](https://raw.githubusercontent.com/lucianohorta/best-sellers-sh/main/print1.png)
+![](https://github.com/lucianohorta/best-sellers-shopify/blob/main/print1.png?raw=true)
 
