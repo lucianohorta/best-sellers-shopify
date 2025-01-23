@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Sellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet">
+    <style>
+        .title {
+          font-family: "Source Serif 4", serif;
+        }
+        .scroll-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+            position: relative;
+            cursor: grab;
+            user-select: none;
+            padding-bottom: 8px;
+        }
+        .scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-indicator-container {
+            position: relative;
+            height: 4px;
+            width: calc(100% - 4px);
+            background: #ccc;
+            margin-top: 8px;
+            cursor: pointer;
+            overflow: visible;
+        }
+        .scroll-indicator {
+            height: 4px;
+            background: #333;
+            border-radius: 6px;
+            position: absolute;
+            left: 0;
+            top: -1px;
+            cursor: grab;
+            width: 20%;
+        }
+        .scroll-indicator.active {
+            height: 6px;
+        }
+        .product-card {
+            min-width: 250px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .product-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            font-family: "Bebas Neue", serif;
+            font-weight: 400 !important;
+            font-style: normal;
+            text-align: left;
+            margin-left: 12px;
+        }
+        .product-card:last-child {
+            margin-right: 0 !important;
+        }
+        .price {
+          font-family: "Poppins", serif;
+          font-weight: 500;
+          font-style: normal;
+          text-align: left;
+          padding-left: 12px;
+          color: black !important;
+        }
+        .best-seller-badge, .save-badge {
+            position: absolute;
+            top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        .best-seller-badge {
+            left: 8px;
+            background: white;
+            color: black;
+            border-radius: 20px;
+            border: 1.5px solid black;
+            font-family: "Bebas Neue", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .save-badge {
+            right: 8px;
+            background: #5C7962;
+            color: white;
+            border-radius: 20px;
+            border: 1.5px solid black;
+            font-family: "Bebas Neue", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            width: 300px;
+            height: 300px;
+        }
+        .image-container img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            transition: opacity 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+        .image-container:hover .primary-img {
+            opacity: 0;
+        }
+        .image-container:hover .secondary-img {
+            opacity: 1;
+        }
+        .secondary-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+        .review-stars {
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            padding-bottom: 10px;
+        }
+        .review-stars span {
+            font-size: 16px;
+            color: black;
+            position: relative;
+        }
+        .review-stars .star-empty {
+            color: #ccc;
+        }
+        .review-stars .star-half::before {
+            content: '\2605';
+            position: absolute;
+            overflow: hidden;
+            width: 50%;
+            color: black;
+        }
+        .review-text {
+          margin-left: 5px;
+          font-family: "Poppins", serif;
+          font-weight: 400;
+          font-style: normal;
+          text-align: left;
+          color: #707070 !important;
+          font-size: 13px !important;
+        }
+        .shop-all {
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            color: #5C553A;
+        }
+        #arrow-right {
+          padding-left: 12px;
+          font-size: 18px;
+        }
+        .show-more {
+          display: none;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+          .scroll-container {
+                flex-wrap: wrap;
+                overflow-x: visible;
+                justify-content: center;
+                padding-bottom: 16px;
+                touch-action: pan-y;
+            }
+            .product-card {
+              width: 50%;
+              min-width: 50%;
+              margin-left: 0;
+            }
+            .product-card:nth-child(n+5) {
+                display: none;
+            }
+            .shop-all {
+                justify-content: center;
+                margin-top: 24px;
+            }
+            .scroll-indicator-container {
+                width: 90%;
+                margin: 0 auto;
+            }
+          .image-container {
+            position: relative;
+            overflow: hidden;
+            width: 150px;
+            height: 150px;
+          }
+          .image-container img {
+              width: 100%;
+              height: 100%;
+              max-width: 300px;
+              max-height: 300px;
+              object-fit: cover;
+              transition: opacity 0.3s ease-in-out;
+          }
+          .best-seller-badge, .save-badge {
+            font-size: 10px;
+          }    
+          .product-title {
+            white-space: normal;
+            overflow: auto;
+            text-overflow: unset;
+            margin-top: 12px !important;
+            line-height: 1.5rem !important;
+          }
+          .review-stars span {
+            font-size: 11px;
+          }
+          .review-text {
+            font-size: 11px !important;
+          }
+          .shop-all, .scroll-indicator-container {
+            display: none !important;
+          }
+          .show-more {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Poppins", serif;
+            background: black;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 100px;
+          }
+        }
+
+    </style>
+</head>
+<body class="bg-white p-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="best-sellers-container ml-3 mb-3 mt-0 md:mt-8 flex justify-center md:justify-between items-center">
+          <h2 class="title text-3xl font-bold">Best Sellers</h2>
+          <div class="shop-all flex justify-end items-center mt-4">Shop All Best Sellers <span id="arrow-right">→</span></div>
+      </div>
+
+      <div id="scrollContainer" class="scroll-container pb-4">
+          <!-- Product Cards -->
+          <script>
+              const products = [
+              { name: "Outside Vibes T-Shirt Sunshine", img1: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=3540&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1583305727488-61f82c7eae4b?q=80&w=3687&auto=format&fit=crop", price: "$104.95", rating: 4, reviews: "1,234", save15: false },
+              { name: "Hike Bottle Outside Vibes Forest Green", img1: "https://images.unsplash.com/photo-1659506425360-f04a041e90df?q=80&w=3540&auto=format&fit=crop", img2: "https://plus.unsplash.com/premium_photo-1664110691050-4cd1fb8e3aa4?w=900&auto=format&fit=crop", price: "$104.95", rating: 3, reviews: "1,234", save15: true },
+              { name: "Rest in Nature T-Shirt Charcoal", img1: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=3540&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1474494819794-90f9664b530d?w=900&auto=format&fit=crop", price: "$104.95", rating: 4.5, reviews: "1,234", save15: false },
+              { name: "Outside Vibes Cap Forest Green", img1: "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=3639&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1542062837-627a059e547f?q=80&w=3264&auto=format&fit=crop", price: "$104.95", rating: 4, reviews: "1,234", save15: true },
+              { name: "Best Seller Product", img1: "https://images.unsplash.com/photo-1572635196184-84e35138cf62?q=80&w=3560&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1610475426528-f5565ecca5bb?q=80&w=3619&auto=format&fit=crop", price: "$104.95", rating: 3.5, reviews: "1,234", save15: false },
+              { name: "Top Rated Product", img1: "https://images.unsplash.com/photo-1521498542256-5aeb47ba2b36?w=900&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1499713907394-43c9d094ac2e?q=80&w=2928&auto=format&fit=crop", price: "$104.95", rating: 5, reviews: "1,234", save15: false },
+              { name: "Exclusive Deal", img1: "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?q=80&w=2193&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1511405946472-a37e3b5ccd47?w=900&auto=format&fit=crop", price: "$104.95", rating: 4.5, reviews: "1,234", save15: false },
+              { name: "Premium Choice", img1: "https://images.unsplash.com/photo-1514642837906-76ed4698ec34?w=900&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1490631537525-3b00d26805f9?w=900&auto=format&fit=crop", price: "$104.95", rating: 4.5, reviews: "1,234", save15: false },
+              { name: "Limited Edition", img1: "https://images.unsplash.com/photo-1529158062015-cad636e205a0?q=80&w=3453&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=900&auto=format&fit=crop", price: "$104.95", rating: 4.5, reviews: "1,234", save15: false },
+              { name: "New Arrival", img1: "https://images.unsplash.com/photo-1460134846237-51c777df6111?q=80&w=3540&auto=format&fit=crop", img2: "https://images.unsplash.com/photo-1536632087471-3cf3f2986328?q=80&w=3552&auto=format&fit=crop", price: "$104.95", rating: 4.5, reviews: "1,234", save15: true }
+          ];
+              
+          document.getElementById("scrollContainer").innerHTML = products.map(product => `
+              <div class="product-card">
+                  <div class="image-container">
+                      <span class="best-seller-badge">BEST SELLER</span>
+                      ${product.save15 ? '<span class="save-badge">SAVE 15%</span>' : ''}
+                      <img src="${product.img1}" class="w-full h-48 object-cover rounded-lg primary-img">
+                      <img src="${product.img2}" class="w-full h-48 object-cover rounded-lg secondary-img">
+                  </div>
+                  <h3 class="mt-4 text-lg font-semibold product-title">${product.name}</h3>
+                  <div class="flex items-center justify-start mt-1 review-stars">
+                      ${'<span class="star-full">★</span>'.repeat(Math.floor(product.rating))}
+                      ${product.rating % 1 !== 0 ? '<span class="star-half">★</span>' : ''}
+                      ${'<span class="star-empty">★</span>'.repeat(5 - Math.ceil(product.rating))}
+                      <span class="review-text">${product.reviews} Reviews</span>
+                  </div>
+                  <p class="price text-gray-600">${product.price}</p>
+              </div>
+          `).join('');
+          </script>
+      </div>
+
+      <div class="scroll-indicator-container">
+          <div id="scrollIndicator" class="scroll-indicator"></div>
+      </div>
+
+      <div id="showMore" class="show-more">Show More</div>
+
+    </div>
+
+
+    <script>
+      const scrollContainer = document.getElementById("scrollContainer");
+      const scrollIndicator = document.getElementById("scrollIndicator");
+      const showMoreBtn = document.getElementById("showMore");
+
+      const updateScrollIndicator = () => {
+          const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+          const scrollPercent = scrollContainer.scrollLeft / maxScroll;
+          const indicatorWidth = (scrollContainer.clientWidth / scrollContainer.scrollWidth) * 100;
+
+          Object.assign(scrollIndicator.style, {
+              width: `${indicatorWidth}%`,
+              left: `${scrollPercent * (100 - indicatorWidth)}%`
+          });
+      };
+
+      const handleScrollClick = (e) => {
+          if (e.target === scrollIndicator) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          scrollContainer.scrollTo({ 
+              left: ((e.clientX - rect.left) / rect.width) * scrollContainer.scrollWidth, 
+              behavior: "smooth" 
+          });
+      };
+
+      const startDrag = (e, isContainer = false) => {
+          e.preventDefault();
+          const startX = e.touches?.[0]?.clientX || e.clientX;
+          const target = isContainer ? scrollContainer : scrollIndicator;
+          
+          let startScroll = scrollContainer.scrollLeft;
+          let isDragging = true;
+          
+          const moveDrag = (ev) => {
+              if (!isDragging) return;
+              const deltaX = (ev.touches?.[0]?.clientX || ev.clientX) - startX;
+              scrollContainer.scrollLeft = isContainer 
+                  ? startScroll - deltaX * 0.5 
+                  : startScroll + deltaX;
+          };
+
+          const stopDrag = () => {
+              isDragging = false;
+              scrollContainer.style.cursor = "grab";
+              scrollIndicator.classList.remove("active");
+              document.removeEventListener("mousemove", moveDrag);
+              document.removeEventListener("mouseup", stopDrag);
+              document.removeEventListener("touchmove", moveDrag);
+              document.removeEventListener("touchend", stopDrag);
+          };
+
+          if (!isContainer) scrollIndicator.classList.add("active");
+          else scrollContainer.style.cursor = "grabbing";
+
+          document.addEventListener("mousemove", moveDrag);
+          document.addEventListener("mouseup", stopDrag);
+          document.addEventListener("touchmove", moveDrag);
+          document.addEventListener("touchend", stopDrag);
+      };
+
+      const showMoreProducts = () => {
+          document.querySelectorAll(".product-card").forEach((el, index) => {
+              setTimeout(() => Object.assign(el.style, { display: "block", opacity: "1", transform: "translateY(0)" }), index * 50);
+          });
+          showMoreBtn.style.display = "none";
+      };
+
+      scrollContainer.addEventListener("scroll", updateScrollIndicator);
+      document.querySelector(".scroll-indicator-container").addEventListener("click", handleScrollClick);
+
+      scrollIndicator.addEventListener("mousedown", (e) => startDrag(e));
+      scrollIndicator.addEventListener("touchstart", (e) => startDrag(e));
+
+      scrollContainer.addEventListener("mousedown", (e) => startDrag(e, true));
+
+      showMoreBtn.addEventListener("click", showMoreProducts);
+
+      updateScrollIndicator();
+
+    </script>
+</body>
+</html>
